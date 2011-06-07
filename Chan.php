@@ -9,7 +9,7 @@ class Chan {
 		$this->site_url = $site_url;
 
 		if (!empty($this->post)) {
-			$this->db->dorps->insert(array('dorps' => $_POST), array('safe' => true));
+			$this->db->dorps->insert(array('dorps' => $this->post), array('safe' => true));
 		}
 	}
 

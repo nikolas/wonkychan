@@ -1,6 +1,6 @@
 <?php
 class Chan {
-	private $db, $get, $post, $site_url;
+	private $db, $get, $post, $site_url, $collection;
 
 	public function __construct($db, $site_url = '/', $get = NULL, $post = NULL) {
 		$this->db = $db;
@@ -8,8 +8,10 @@ class Chan {
 		$this->post = $post;
 		$this->site_url = $site_url;
 
-		if (!empty($this->post)) {
-			$this->db->dorps->insert(array('dorps' => $this->post), array('safe' => true));
+    $this->collection = $this->db->selectCollection('dorps');
+
+		if (!empty($this->post) && !empty($this->post['words'])) {
+			$this->db->dorps->insert($this->post, array('safe' => true));
 		}
 	}
 
@@ -23,8 +25,9 @@ class Chan {
 <style type="text/css">
 	body {
 		background-color: purple;
+		color: white;
 	}
-	h1 {
+	h1, a {
 		color: white;
 	}
 	#wonky-contained {
@@ -42,19 +45,23 @@ class Chan {
 	private function header() {
 ?>
 <div class="header">
-<?php print_r($this->get); ?>
-<?php print_r($this->post); ?>
 </div>
 <?php
 	}
 
 	private function showDorps() {
-		return $this->db->dorps->find(array('words'));
+    $cursor = $this->collection->find();
+    $cursor->rewind();
+    $s = '';
+    while ($d = $cursor->getNext()) {
+      $s .= "<div>{$d['words']}</div><hr />";
+    }
+		return $s;
 	}
 
 	private function form() {
 ?>
-<form name="dorp" enctype="multipart/form-data" method="post" action="index.php">
+<form name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_url; ?>">
 <textarea id="words" name="words"></textarea>
 <input type="file" name="picture" id="picture" />
 <input type="submit" />
@@ -77,7 +84,7 @@ class Chan {
 		<p>
 			<h1><a href="<?php echo $this->site_url; ?>">Wonkychan</a></h1>
 			<?php echo $this->form(); ?>
-			<?php var_dump(iterator_to_array($this->showDorps())); ?>
+			<?php echo $this->showDorps(); ?>
 		</p>
 	</div>
 </body>

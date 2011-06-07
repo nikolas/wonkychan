@@ -1,15 +1,19 @@
 <?php
 class Chan {
-	private $db, $get, $post, $site_url, $collection, $alert;
+	private $db, $get, $post, $site_path, $collection, $alert;
+	private $route;
 
-	public function __construct($db, $site_url = '/', $get = NULL, $post = NULL) {
+	public function __construct($db, $site_path = '/', $get = NULL, $post = NULL) {
 		$this->db = $db;
 		$this->get = $get;
 		$this->post = $post;
-		$this->site_url = $site_url;
-    $this->alert = '';
+		$this->site_path = $site_path;
+		$this->alert = '';
 
-    $this->collection = $this->db->selectCollection('dorps');
+		$route = preg_replace("|{$this->site_path}|", '', $_SERVER['REQUEST_URI']);
+		$this->route = preg_split('/\//', $route);
+
+		$this->collection = $this->db->selectCollection('dorps');
 
 		if (!empty($this->post)) {
 			if (empty($this->post['words'])) {
@@ -22,10 +26,10 @@ class Chan {
 
 	private function style() {
 ?>
-<link rel="stylesheet" href="blueprint/screen.css" type="text/css" media="screen, projection">
-<link rel="stylesheet" href="blueprint/print.css" type="text/css" media="print"> 
+<link rel="stylesheet" href="<?php echo $this->site_path; ?>/blueprint/screen.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="<?php echo $this->site_path; ?>/blueprint/print.css" type="text/css" media="print"> 
 <!--[if lt IE 8]>
-<link rel="stylesheet" href="blueprint/ie.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="<?php echo $this->site_path; ?>/blueprint/ie.css" type="text/css" media="screen, projection">
 <![endif]-->
 <style type="text/css">
 	body {
@@ -57,23 +61,33 @@ class Chan {
 	}
 
 	private function showDorps() {
-    $cursor = $this->collection->find();
-    $cursor->rewind();
-    $s = '';
-    while ($d = $cursor->getNext()) {
-      $s .= "<div>{$d['words']}</div><hr />";
-    }
-		return $s;
+	$cursor = $this->collection->find();
+	$cursor->rewind();
+	$s = '';
+	while ($d = $cursor->getNext()) {
+	  $s .= "<div>{$d['words']}</div><hr />";
+	}
+	return $s;
 	}
 
 	private function form() {
 ?>
-<form name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_url; ?>">
+<form name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_path; ?>">
 <textarea id="words" name="words"></textarea>
 <input type="file" name="picture" id="picture" />
 <input type="submit" />
 </form>
 <?php
+	}
+
+	private function yield() {
+		switch ($this->route[0]) {
+			case 'forum':
+				return "forum number {$this->route[1]}!";
+				break;
+			default:
+				return $this->form() . $this->showDorps();
+		}
 	}
 
 	public function out() {
@@ -89,9 +103,8 @@ class Chan {
 	<div id="wonky-contained">
 		<?php echo $this->header(); ?>
 		<p>
-			<h1><a href="<?php echo $this->site_url; ?>">Wonkychan</a></h1>
-			<?php echo $this->form(); ?>
-			<?php echo $this->showDorps(); ?>
+			<h1><a href="<?php echo $this->site_path; ?>">Wonkychan</a></h1>
+			<?php echo $this->yield(); ?>
 		</p>
 	</div>
 </body>

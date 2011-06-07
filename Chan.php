@@ -1,17 +1,22 @@
 <?php
 class Chan {
-	private $db, $get, $post, $site_url, $collection;
+	private $db, $get, $post, $site_url, $collection, $alert;
 
 	public function __construct($db, $site_url = '/', $get = NULL, $post = NULL) {
 		$this->db = $db;
 		$this->get = $get;
 		$this->post = $post;
 		$this->site_url = $site_url;
+    $this->alert = '';
 
     $this->collection = $this->db->selectCollection('dorps');
 
-		if (!empty($this->post) && !empty($this->post['words'])) {
-			$this->db->dorps->insert($this->post, array('safe' => true));
+		if (!empty($this->post)) {
+			if (empty($this->post['words'])) {
+				$this->alert = '>:(';
+			} else {
+				$this->db->dorps->insert($this->post, array('safe' => true));
+			}
 		}
 	}
 
@@ -36,6 +41,7 @@ class Chan {
 	}
 	.header, .dorps {
 		background-color: #9ff904;
+		color: black;
 		padding: 1em;
 	}
 </style>
@@ -45,6 +51,7 @@ class Chan {
 	private function header() {
 ?>
 <div class="header">
+<?php echo $this->alert; ?>
 </div>
 <?php
 	}

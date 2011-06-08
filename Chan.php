@@ -1,13 +1,17 @@
 <?php
 class Chan {
-	private $db, $get, $post, $site_path, $collection, $alert;
+	private $db, $get, $post, $files;
+	private $site_path, $site_fs_path;
+	private $collection, $alert;
 	private $route;
 
-	public function __construct($db, $site_path = '/', $get = NULL, $post = NULL) {
+	public function __construct($db, $site_path = '/', $site_fs_path = '.', $get = null, $post = null, $files = null) {
 		$this->db = $db;
 		$this->get = $get;
 		$this->post = $post;
+		$this->files = $files;
 		$this->site_path = $site_path;
+		$this->site_fs_path = $site_fs_path;
 		$this->alert = '';
 
 		$route = preg_replace("|{$this->site_path}|", '', $_SERVER['REQUEST_URI']);
@@ -17,9 +21,19 @@ class Chan {
 
 		if (!empty($this->post)) {
 			if (empty($this->post['words'])) {
-				$this->alert = '>:(';
+				$this->alert .= '>:(';
 			} else {
 				$this->db->dorps->insert($this->post, array('safe' => true));
+			}
+
+			if (!empty($this->files)) {
+				$new_filename = $this->site_fs_path . '/d/' . basename($files['picture']['name']);
+				if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
+					$this->alert .= 'img moved';
+					$this->db->dorps->update(array('words' => $this->post['words']), array('$set' => array('picture' => basename($files['picture']['name']))));
+				} else {
+					$this->alert .= 'woops';
+				}
 			}
 		}
 	}
@@ -61,13 +75,16 @@ class Chan {
 	}
 
 	private function showDorps() {
-	$cursor = $this->collection->find();
-	$cursor->rewind();
-	$s = '';
-	while ($d = $cursor->getNext()) {
-	  $s .= "<div>{$d['words']}</div><hr />";
-	}
-	return $s;
+		$cursor = $this->collection->find();
+		$cursor->rewind();
+		$s = '';
+		foreach ($cursor as $d) {
+			if (array_key_exists('picture', $d)) {
+				$s .= "<img class=\"pic\" src=\"{$this->site_path}/d/{$d['picture']}\" />";
+			}
+			$s .= "<div class=\"content\">{$d['words']}</div><hr />";
+		}
+		return $s;
 	}
 
 	private function form() {

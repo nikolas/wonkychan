@@ -26,7 +26,7 @@ class Chan {
 				$this->db->dorps->insert($this->post, array('safe' => true));
 			}
 
-			if (!empty($this->files)) {
+			if (!empty($this->files) && !empty($this->files['picture']['name'])) {
 				$new_filename = $this->site_fs_path . '/d/' . basename($files['picture']['name']);
 				if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
 					$this->alert .= 'img moved';
@@ -75,7 +75,7 @@ class Chan {
 	}
 
 	private function showDorps() {
-		$cursor = $this->collection->find();
+		$cursor = $this->collection->find()->sort(array('$natural' => -1));
 		$cursor->rewind();
 		$s = '';
 		foreach ($cursor as $d) {

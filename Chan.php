@@ -2,10 +2,17 @@
 class Chan {
 	private $db, $get, $post, $files;
 	private $site_path, $site_fs_path;
-	private $collection, $alert;
+	private $alert;
 	private $route;
 
-	public function __construct($db, $site_path = '/', $site_fs_path = '.', $get = null, $post = null, $files = null) {
+	public function __construct(
+			$db,
+			$site_path = '/',
+			$site_fs_path = '.',
+			$get = null,
+			$post = null,
+			$files = null
+	) {
 		$this->db = $db;
 		$this->get = $get;
 		$this->post = $post;
@@ -17,24 +24,16 @@ class Chan {
 		$route = preg_replace("|{$this->site_path}|", '', $_SERVER['REQUEST_URI']);
 		$this->route = preg_split('/\//', $route);
 
-		$this->collection = $this->db->selectCollection('dorps');
-
-		if (!empty($this->post)) {
-			if (empty($this->post['words'])) {
-				$this->alert .= '>:(';
+		if (!empty($this->files) && !empty($this->files['picture']['name'])) {
+			$new_filename = $this->site_fs_path . '/d/' . basename($files['picture']['name']);
+			if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
+				$this->alert .= ':) ';
+				$this->alert .= $this->db->dorps->insert(array('picture' => basename($files['picture']['name'])));
 			} else {
-				$this->db->dorps->insert($this->post, array('safe' => true));
+				$this->alert .= 'woops';
 			}
-
-			if (!empty($this->files) && !empty($this->files['picture']['name'])) {
-				$new_filename = $this->site_fs_path . '/d/' . basename($files['picture']['name']);
-				if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
-					$this->alert .= 'img moved';
-					$this->db->dorps->update(array('words' => $this->post['words']), array('$set' => array('picture' => basename($files['picture']['name']))));
-				} else {
-					$this->alert .= 'woops';
-				}
-			}
+		} else {
+			$this->alert .= '>:(';
 		}
 	}
 
@@ -75,22 +74,24 @@ class Chan {
 	}
 
 	private function showDorps() {
-		$cursor = $this->collection->find()->sort(array('$natural' => -1));
+		$cursor = $this->db->dorps->find()->sort(array('$natural' => -1));
 		$cursor->rewind();
 		$s = '';
 		foreach ($cursor as $d) {
 			if (array_key_exists('picture', $d)) {
 				$s .= "<img class=\"pic\" src=\"{$this->site_path}/d/{$d['picture']}\" />";
 			}
-			$s .= "<div class=\"content\">{$d['words']}</div><hr />";
 		}
 		return $s;
+	}
+
+	private function showForums() {
+		return '';
 	}
 
 	private function form() {
 ?>
 <form name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_path; ?>">
-<textarea id="words" name="words"></textarea>
 <input type="file" name="picture" id="picture" />
 <input type="submit" />
 </form>
@@ -103,7 +104,7 @@ class Chan {
 				return "forum number {$this->route[1]}!";
 				break;
 			default:
-				return $this->form() . $this->showDorps();
+				return $this->showForums() . $this->form() . $this->showDorps();
 		}
 	}
 

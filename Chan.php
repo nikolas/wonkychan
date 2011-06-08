@@ -17,18 +17,21 @@ class Chan {
 		$this->get = $get;
 		$this->post = $post;
 		$this->files = $files;
-		$this->site_path = $site_path;
+		$this->site_path = preg_replace('/\/$/', '', $site_path);
 		$this->site_fs_path = $site_fs_path;
 		$this->alert = '';
 
 		$route = preg_replace("|{$this->site_path}|", '', $_SERVER['REQUEST_URI']);
+		$route = preg_replace('/\/\//', '/', $route);
+		$route = preg_replace('/^\//', '', $route);
 		$this->route = preg_split('/\//', $route);
 
 		if (!empty($this->files) && !empty($this->files['picture']['name'])) {
 			$new_filename = $this->site_fs_path . '/d/' . basename($files['picture']['name']);
 			if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
 				$this->alert .= ':) ';
-				$this->alert .= $this->db->dorps->insert(array('picture' => basename($files['picture']['name'])));
+				$this->alert .= $this->db->dorps
+						->insert(array('picture' => basename($files['picture']['name'])));
 			} else {
 				$this->alert .= 'woops';
 			}
@@ -52,6 +55,11 @@ class Chan {
 	h1, a {
 		color: white;
 	}
+	form.dorp {
+		margin-right: 1em;
+		padding-right: 1em;
+		float: left;
+	}
 	#wonky-contained {
 		width: 960px;
 		margin: 0px auto 0px auto;
@@ -74,7 +82,8 @@ class Chan {
 	}
 
 	private function showDorps() {
-		$cursor = $this->db->dorps->find()->sort(array('$natural' => -1));
+		$cursor = $this->db->dorps
+				->find()->sort(array('$natural' => -1));
 		$cursor->rewind();
 		$s = '';
 		foreach ($cursor as $d) {
@@ -85,14 +94,65 @@ class Chan {
 		return $s;
 	}
 
+	private function showForum($link) {
+		$cursor = $this->db->forums
+				->find(array('link' => $link));
+		$cursor->rewind();
+		$s = '';
+		foreach ($cursor as $d) {
+			$s .= "yeah this is {$d['title']} uhhhhh";
+		}
+
+		$s .= '<table>'
+				. '<thead>'
+				. '<th>Title</th>'
+				. '<th>Author</th>'
+				. '<th>Re</th>'
+				. '<th>Last Poster</th>'
+				. '</thead>';
+
+		$s .= '<tbody>';
+		$cursor = $this->db->forumthreads
+				->find(array('link' => $link));
+		$cursor->rewind();
+		if ($cursor->count() < 1) {
+			$s .= '<tr>no threads yet mate</tr>';
+		}
+		$s .= '</tbody>';
+
+		$s .= '</table>';
+
+		return $s;
+	}
+
+	private function showForumPostThreadForm() {
+?>
+<form name="forum" method="get" action="<?php echo $this->site_path; ?>">
+<input type="text" name="thread-title" />
+</form>
+<?php
+	}
+
 	private function showForums() {
-		return '';
+		$cursor = $this->db->forums
+				->find()->sort(array('$natural' => -1));
+		$cursor->rewind();
+		$s = '';
+		foreach ($cursor as $d) {
+			if (array_key_exists('link', $d)
+					&& array_key_exists('title', $d)
+			) {
+				$s .= "<a href=\"{$this->site_path}/f/{$d['link']}\" />{$d['title']}</a>";
+			}
+		}
+		return $s;
 	}
 
 	private function form() {
 ?>
-<form name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_path; ?>">
+<form class="dorp" name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_path; ?>">
 <input type="file" name="picture" id="picture" />
+<br />
 <input type="submit" />
 </form>
 <?php
@@ -100,8 +160,11 @@ class Chan {
 
 	private function yield() {
 		switch ($this->route[0]) {
-			case 'forum':
-				return "forum number {$this->route[1]}!";
+			case 'f':
+				if (!isset($this->route[1]) || !$this->route[1]) {
+					continue;
+				}
+				return $this->showForum($this->route[1]);
 				break;
 			default:
 				return $this->showForums() . $this->form() . $this->showDorps();

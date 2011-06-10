@@ -150,7 +150,7 @@ class Chan {
 
 	private function form() {
 ?>
-<form class="dorp" name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_path; ?>">
+<form class="dorp" name="dorp" enctype="multipart/form-data" method="post" action="<?php echo $this->site_path . '/index.php'; ?>">
 <input type="file" name="picture" id="picture" />
 <br />
 <input type="submit" />

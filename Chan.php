@@ -234,7 +234,7 @@ $title.text( $title.text() + ' forum' );
 					}
 					break;
 				case 'admin':
-					if (array_key_exists('add_forum', $this->post)) {
+					if (array_key_exists('add_forum', $this->post) && !empty($this->post['add_forum'])) {
 						$link = urlencode(preg_replace('/ /', '-', strtolower($this->post['add_forum'])));
 						$r = $this->db->forums
 								->insert(array('link' => $link, 'title' => $this->post['add_forum']));
@@ -242,7 +242,7 @@ $title.text( $title.text() + ' forum' );
 							$this->alert .= '<span class="success">forum added :)</span>';
 						}
 					}
-					if (array_key_exists('add_forum', $this->post)) {
+					if (array_key_exists('bg_color', $this->post) && !empty($this->post['bg_color'])) {
 						$r = $this->db->chan
 								->update(array('bg_color' => $this->post['bg_color']),
 									array('bg_color' => $this->post['bg_color']),

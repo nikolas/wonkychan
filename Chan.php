@@ -1,4 +1,5 @@
 <?php
+session_start();
 class Chan {
 	private $db, $get, $post, $files;
 	private $site_path, $site_fs_path;
@@ -23,7 +24,7 @@ class Chan {
 		$this->alert = '';
 
 		if (isset($_SESSION) && array_key_exists('admin_name', $_SESSION)) {
-			$this->adminname = $_SESSION['admin_name'];
+			$this->adminName = $_SESSION['admin_name'];
 		} else {
 			$this->adminName = null;
 		}
@@ -173,6 +174,12 @@ $title.text( $title.text() + ' forum' );
 		return $s;
 	}
 
+	//creates a 3 character sequence
+	private function createSalt() {
+		$string = md5(uniqid(rand(), true));
+		return substr($string, 0, 3);
+	}
+
 	private function showAdmin() {
 		if (!empty($this->post) && array_key_exists('formname', $this->post)) {
 			switch ($this->post['formname']) {
@@ -189,18 +196,34 @@ $title.text( $title.text() + ' forum' );
 						$this->alert .= '<span class="error">passwords dont match</span>';
 						break;
 					}
-					$hashed = crypt($this->post['admin_pass']);
+					$salt = $this->createSalt();
+					$hashed = crypt($this->post['admin_pass'], $salt);
 					$r = $this->db->admins
-							->insert(array('username' => $this->post['admin_name'], 'password' => $hashed));
+							->insert(array('username' => $this->post['admin_name'], 'password' => $hashed, 'salt' => $salt));
 					if ($r == 1) {
 						print 'user made :)';
-						session_start();
 						print_r($_SESSION);
 						$_SESSION['admin_name'] = $this->post['admin_name'];
 						print_r($_SESSION);
 					}
 					break;
 				case 'admin_login':
+					$query = array("username" => $this->post['admin_name']);
+					$cursor = $this->db->admins->find($query);
+					$cursor->getNext();
+					foreach ($cursor as $obj) {
+						$user = $obj['username'];
+						$p = $obj['password'];
+						$salt = $obj['salt'];
+					}
+					$entered = crypt($this->post['admin_pass'], $salt);
+					if($p == $entered){
+						echo "logged in!\n";
+						$_SESSION['admin_name'] = $user;
+					}else{
+						$location = $this->site_path."/index.php";
+						header($location);
+					}
 					break;
 				case 'admin':
 					break;
@@ -209,8 +232,13 @@ $title.text( $title.text() + ' forum' );
 			}
 		}
 
-		if ($this->adminName) {
+
+		if($this->route[1] == 'logout'){
+			session_destroy();
+			echo "logged out.\n";
+		} else if($this->adminName) {
 ?>
+<a href="<?php echo $this->site_path."/a/logout" ?>">logout</a>
 <p>Welcome, <?php echo $this->adminName; ?> :)</p>
 <form class="admin" name="admin" method="post" action="<?php echo $this->site_path . '/a/'; ?>">
 <input type="hidden" name="redir" value="a" />
@@ -289,6 +317,8 @@ $('.header').html('<?php echo $this->alert; ?>');
 				return $this->showForums() . $this->dorpForm() . $this->showDorps();
 		}
 	}
+
+
 
 	public function out() {
 ?>

@@ -233,7 +233,7 @@ $title.text( $title.text() + ' forum' );
 		}
 
 
-		if($this->route[1] == 'logout'){
+		if(array_key_exists(1, $this->route) && $this->route[1] == 'logout') {
 			session_destroy();
 			echo "logged out.\n";
 		} else if($this->adminName) {

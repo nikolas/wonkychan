@@ -234,10 +234,20 @@ $title.text( $title.text() + ' forum' );
 					}
 					break;
 				case 'admin':
-					$r = $this->db->chan
-							->update(array('bg_color' => $this->post['bg_color']),
-								array('bg_color' => $this->post['bg_color']),
-								array('upsert' => true));
+					if (array_key_exists('add_forum', $this->post)) {
+						$link = urlencode(preg_replace('/ /', '-', strtolower($this->post['add_forum'])));
+						$r = $this->db->forums
+								->insert(array('link' => $link, 'title' => $this->post['add_forum']));
+						if ($r == 1) {
+							$this->alert .= '<span class="success">forum added :)</span>';
+						}
+					}
+					if (array_key_exists('add_forum', $this->post)) {
+						$r = $this->db->chan
+								->update(array('bg_color' => $this->post['bg_color']),
+									array('bg_color' => $this->post['bg_color']),
+									array('upsert' => true));
+					}
 					break;
 				default:
 					break;
@@ -253,9 +263,16 @@ $title.text( $title.text() + ' forum' );
 <a href="<?php echo $this->site_path."/a/logout" ?>">logout</a>
 <p>Welcome, <?php echo $this->adminName; ?> :)</p>
 <form class="admin" name="admin" method="post" action="<?php echo $this->site_path . '/a/'; ?>">
-<label for="bg_color">Background color:</label>
-<input type="text" name="bg_color" value="<?php echo $this->bgColor; ?>" />
-<br />
+	<fieldset>
+		<legend>GLobal Chan options</legend>
+		<label for="bg_color">Background Color</label>
+		<input type="text" name="bg_color" value="<?php echo $this->bgColor; ?>" />
+	</fieldset>
+	<fieldset>
+		<legend>Forums</legend>
+		<label for="add_forum">Create Forum</label>
+		<input type="text" name="add_forum" value="" />
+	</fieldset>
 <input type="hidden" name="redir" value="a" />
 <input type="hidden" name="formname" value="admin" />
 <input type="submit" />

@@ -234,7 +234,6 @@ $title.text( $title.text() + ' forum' );
 					}
 					break;
 				case 'admin':
-					print_r($this->post);
 					$r = $this->db->chan
 							->update(array('bg_color' => $this->post['bg_color']),
 								array('bg_color' => $this->post['bg_color']),
@@ -264,7 +263,6 @@ $title.text( $title.text() + ' forum' );
 <?php
 		} else {
 			if ($this->db->admins->find()->count() < 1) {
-			print_r($this->post);
 ?>
 <p>There's no admin user. Make one :)</p>
 <form class="admin_create" name="admin_create" method="post" action="<?php echo $this->site_path . '/a/'; ?>">

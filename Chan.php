@@ -211,6 +211,7 @@ $title.text( $title.text() + ' forum' );
 					$query = array("username" => $this->post['admin_name']);
 					$cursor = $this->db->admins->find($query);
 					$cursor->getNext();
+					$salt = $p = null;
 					foreach ($cursor as $obj) {
 						$user = $obj['username'];
 						$p = $obj['password'];

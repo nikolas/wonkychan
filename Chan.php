@@ -6,6 +6,7 @@ class Chan {
 	private $alert;
 	private $route;
 	private $adminName;
+	private $bgColor;
 
 	public function __construct(
 			$db,
@@ -22,6 +23,14 @@ class Chan {
 		$this->site_path = preg_replace('/\/$/', '', $site_path);
 		$this->site_fs_path = $site_fs_path;
 		$this->alert = '';
+
+		$this->bgColor = 'purple';
+		$cursor = $this->db->chan->find();
+		foreach ($cursor as $obj) {
+			if (array_key_exists('bg_color', $obj)) {
+				$this->bgColor = $obj['bg_color'];
+			}
+		}
 
 		if (isset($_SESSION) && array_key_exists('admin_name', $_SESSION)) {
 			$this->adminName = $_SESSION['admin_name'];
@@ -48,7 +57,7 @@ class Chan {
 <![endif]-->
 <style type="text/css">
 	body {
-		background-color: purple;
+		background-color: <?php echo $this->bgColor; ?>;
 		color: white;
 	}
 	h1, a {
@@ -202,9 +211,7 @@ $title.text( $title.text() + ' forum' );
 							->insert(array('username' => $this->post['admin_name'], 'password' => $hashed, 'salt' => $salt));
 					if ($r == 1) {
 						print 'user made :)';
-						print_r($_SESSION);
 						$_SESSION['admin_name'] = $this->post['admin_name'];
-						print_r($_SESSION);
 					}
 					break;
 				case 'admin_login':
@@ -227,6 +234,11 @@ $title.text( $title.text() + ' forum' );
 					}
 					break;
 				case 'admin':
+					print_r($this->post);
+					$r = $this->db->chan
+							->update(array('bg_color' => $this->post['bg_color']),
+								array('bg_color' => $this->post['bg_color']),
+								array('upsert' => true));
 					break;
 				default:
 					break;
@@ -242,6 +254,9 @@ $title.text( $title.text() + ' forum' );
 <a href="<?php echo $this->site_path."/a/logout" ?>">logout</a>
 <p>Welcome, <?php echo $this->adminName; ?> :)</p>
 <form class="admin" name="admin" method="post" action="<?php echo $this->site_path . '/a/'; ?>">
+<label for="bg_color">Background color:</label>
+<input type="text" name="bg_color" value="<?php echo $this->bgColor; ?>" />
+<br />
 <input type="hidden" name="redir" value="a" />
 <input type="hidden" name="formname" value="admin" />
 <input type="submit" />

@@ -85,11 +85,11 @@ class Chan {
 
 	private function showDorps() {
 		if (!empty($this->files) && !empty($this->files['picture']['name'])) {
-			$new_filename = $this->site_fs_path . '/d/' . basename($files['picture']['name']);
+			$new_filename = $this->site_fs_path . '/d/' . basename($this->files['picture']['name']);
 			if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
 				$this->alert .= '<span class="success">:)</span>';
 				$this->db->dorps
-						->insert(array('picture' => basename($files['picture']['name'])));
+						->insert(array('picture' => basename($this->files['picture']['name'])));
 			} else {
 				$this->alert .= '<span class="error">woops</span>';
 			}

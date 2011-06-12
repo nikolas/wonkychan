@@ -58,10 +58,6 @@ class Chan {
 		padding-right: 1em;
 		float: left;
 	}
-	#wonky-contained {
-		width: 960px;
-		margin: 0px auto 0px auto;
-	}
 	.header {
 		background-color: #9ff904;
 		color: black;
@@ -70,11 +66,10 @@ class Chan {
 </style>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 <script>
-$(document).ready(function() {
-	$('.dorps').delegate('img.pic', 'hover', function(event) {
-		//alert(this);
-	});
-})
+//$(document).ready(function() {
+	//$('.dorps').delegate('img.pic', 'hover', function(event) {
+	//});
+//})
 </script>
 <?php
 	}
@@ -91,11 +86,11 @@ $(document).ready(function() {
 		if (!empty($this->files) && !empty($this->files['picture']['name'])) {
 			$new_filename = $this->site_fs_path . '/d/' . basename($files['picture']['name']);
 			if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
-				$this->alert .= ':) ';
-				$this->alert .= $this->db->dorps
+				$this->alert .= '<span class="success">:)</span>';
+				$this->db->dorps
 						->insert(array('picture' => basename($files['picture']['name'])));
 			} else {
-				$this->alert .= 'woops';
+				$this->alert .= '<span class="error">woops</span>';
 			}
 		} else {
 			$this->alert .= '>:(';
@@ -112,7 +107,7 @@ $(document).ready(function() {
 		$s .= '</div>';
 ?>
 <script>
-$('.header').html('<?php echo $this->alert; ?>')
+$('.header').html('<?php echo $this->alert; ?>');
 </script>
 <?php
 		return $s;
@@ -180,19 +175,18 @@ $title.text( $title.text() + ' forum' );
 
 	private function showAdmin() {
 		if (!empty($this->post) && array_key_exists('formname', $this->post)) {
-			$this->alert = '';
 			switch ($this->post['formname']) {
 				case 'admin_create':
 					if (strcmp($this->post['admin_name'], '') == 0) {
-						$this->alert .= 'put in a name';
+						$this->alert .= '<span class=error>put in a name</span>';
 						break;
 					}
 					if (strcmp($this->post['admin_pass'], '') == 0) {
-						$this->alert .= 'put in a password';
+						$this->alert .= '<span class="error">put in a password</span>';
 						break;
 					}
 					if (strcmp($this->post['admin_pass'], $this->post['admin_pass_confirm']) != 0) {
-						$this->alert .= 'passwords dont match';
+						$this->alert .= '<span class="error">passwords dont match</span>';
 						break;
 					}
 					$hashed = crypt($this->post['admin_pass']);
@@ -265,7 +259,7 @@ $title.text( $title.text() + ' forum' );
 <script>
 var $title = $('title');
 $title.text( $title.text() + ' admin' );
-$('.header').html('<?php echo $this->alert; ?>')
+$('.header').html('<?php echo $this->alert; ?>');
 </script>
 <?php
 	}
@@ -306,7 +300,7 @@ $('.header').html('<?php echo $this->alert; ?>')
 <?php echo $this->style(); ?>
 </head>
 <body>
-	<div id="wonky-contained">
+	<div class="container">
 		<?php echo $this->header(); ?>
 		<p>
 			<h1><a href="<?php echo $this->site_path; ?>">Wonkychan</a></h1>

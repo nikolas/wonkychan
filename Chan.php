@@ -347,7 +347,7 @@ $('.header').html('<?php echo $this->alert; ?>');
 	<div class="container">
 		<?php echo $this->header(); ?>
 		<p>
-			<h1><a href="<?php echo $this->site_path; ?>">Wonkychan</a></h1>
+			<h1><a href="<?php echo $this->site_path; ?>"><img src="<?php echo $this->site_path.'/logo.png'?>" /></a></h1>
 			<?php echo $this->yield(); ?>
 		</p>
 	</div>

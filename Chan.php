@@ -109,8 +109,8 @@ $(document).ready(function() {
 				var pic = $this.find('.pic');
 				var pos = pic.offset();
 
-				var left = (pic.width() + pos.left) - 30;
-				var top = (pos.top) + 5;
+				var left = pos.left + 5;
+				var top = pos.top + 5;
 				var img = $('<img />');
 
 				img.addClass('delete-button');

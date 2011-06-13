@@ -43,6 +43,31 @@ class Chan {
 		$route = preg_replace('/^\//', '', $route);
 		$this->route = preg_split('/\//', $route);
 
+		if (!empty($this->post)
+				&& array_key_exists('ajax', $this->post)
+				&& $this->post['ajax'] == 1
+		) {
+			$message = array();
+			if (array_key_exists('method', $this->post)) {
+				switch ($this->post['method']) {
+					case 'delete_dorp':
+						$this->db->dorps->remove(array('picture' => $this->post['pic_file']));
+						$message = array(
+							'result' => 'success',
+							'pic_file' => $this->post['pic_file']
+						);
+						break;
+					default:
+						break;
+				}
+			}
+			header('Cache-Control: no-cache, must-revalidate');
+			header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+			header('Content-type: application/json');
+			$message = json_encode($message);
+			echo $message;
+			exit;
+		}
 		if (!empty($this->post) && array_key_exists('redir', $this->post)) {
 			$this->route[0] = $this->post['redir'];
 		}
@@ -108,7 +133,31 @@ $(document).ready(function() {
 			}
 		})
 		.delegate('.delete-button', 'click', function(event) {
-			$(this).closest('.pic-container').remove();
+			var $this = $(this);
+			var container = $this.closest('.pic-container');
+
+			var pic_file = container.find('img.pic:first').attr('src');
+			pic_file = pic_file.replace('<?php echo $this->site_path; ?>/d/', '');
+			var data = {
+				'ajax': 1,
+				'method': 'delete_dorp',
+				'pic_file': pic_file
+			};
+			$.post('<?php echo $this->site_path; ?>/index.php',
+				data,
+				function(response) {
+				},
+				'json'
+			);
+
+			container.find('.delete-button').remove();
+			container.find('img.pic').animate({
+				opacity: 0.25,
+				left: '+=50',
+				height: 'toggle'
+			}, 600, function() {
+				container.remove();
+			});
 		});
 });
 </script>

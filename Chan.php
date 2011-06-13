@@ -25,10 +25,10 @@ class Chan {
 		$this->alert = '';
 
 		$this->bgColor = 'purple';
-		$cursor = $this->db->chan->find();
+		$cursor = $this->db->chan->find(array('option' => 'bg_color'));
 		foreach ($cursor as $obj) {
-			if (array_key_exists('bg_color', $obj)) {
-				$this->bgColor = $obj['bg_color'];
+			if (array_key_exists('val', $obj)) {
+				$this->bgColor = $obj['val'];
 			}
 		}
 
@@ -243,10 +243,19 @@ $title.text( $title.text() + ' forum' );
 						}
 					}
 					if (array_key_exists('bg_color', $this->post) && !empty($this->post['bg_color'])) {
-						$r = $this->db->chan
-								->update(array('bg_color' => $this->post['bg_color']),
-									array('bg_color' => $this->post['bg_color']),
-									array('upsert' => true));
+						if ($this->db->chan->find(array('option' => 'bg_color'))->count() < 1) {
+							$r = $this->db->chan
+									->insert(
+											array('option' => 'bg_color',
+												'val' => $this->post['bg_color'])
+										);
+						} else {
+							$r = $this->db->chan
+									->update(
+											array('option' => 'bg_color'),
+											array('$set' => array('val' => $this->post['bg_color']))
+										);
+						}
 					}
 					break;
 				default:

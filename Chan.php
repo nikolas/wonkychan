@@ -76,10 +76,41 @@ class Chan {
 </style>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 <script>
-//$(document).ready(function() {
-	//$('.dorps').delegate('img.pic', 'hover', function(event) {
-	//});
-//})
+$(document).ready(function() {
+	$('.dorps')
+		.delegate('.pic-container', 'hover', function(event) {
+			var $this = $(this);
+			if (event.type == 'mouseenter') {
+				var pic = $this.find('.pic');
+				var pos = pic.offset();
+
+				var left = (pic.width() + pos.left) - 30;
+				var top = (pos.top) + 5;
+				var img = $('<img />');
+
+				img.addClass('delete-button');
+				img.css({
+					'position': 'absolute',
+					'cursor': 'pointer',
+					'title': 'Delete',
+					'opacity': 0.7,
+					'top': top,
+					'left': left,
+					'z-index': 1000
+				});
+				img.attr('width', '25px;');
+				img.attr('height', '25px;');
+				img.attr('src', 'delete-all-tweets.jpg');
+
+				$this.append(img);
+			} else {
+				$this.find('.delete-button').remove();
+			}
+		})
+		.delegate('.delete-button', 'click', function(event) {
+			$(this).closest('.pic-container').remove();
+		});
+});
 </script>
 <?php
 	}
@@ -111,7 +142,9 @@ class Chan {
 		$s = '<div class="dorps">';
 		foreach ($cursor as $d) {
 			if (array_key_exists('picture', $d)) {
+				$s .= '<span class="pic-container">';
 				$s .= "<img class=\"pic\" src=\"{$this->site_path}/d/{$d['picture']}\" />";
+				$s .= '</span>';
 			}
 		}
 		$s .= '</div>';

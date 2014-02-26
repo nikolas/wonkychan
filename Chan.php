@@ -424,7 +424,7 @@ $('.header').html('<?php echo $this->alert; ?>');
 <?php
 	}
 
-	private function yield() {
+	private function myYield() {
 		switch ($this->route[0]) {
 			case 'a': // admin
 				return $this->showAdmin();
@@ -456,7 +456,7 @@ $('.header').html('<?php echo $this->alert; ?>');
 		<?php echo $this->header(); ?>
 		<p>
 			<h1><a href="<?php echo $this->site_path; ?>"><img src="<?php echo $this->site_path.'/logo.png'?>" /></a></h1>
-			<?php echo $this->yield(); ?>
+			<?php echo $this->myYield(); ?>
 		</p>
 	</div>
 </body>

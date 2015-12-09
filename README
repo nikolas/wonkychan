@@ -1,1 +1,14 @@
 to request a new feature, join #datafruitsouth on irc.esper.net
+
+
+\/\/ setup \/\/
+
+# Make the picture directory:
+mkdir d
+chgrp www-data d
+chmod a+rw d
+
+# MongoDB
+mongo wonkychan -u wonky
+db.createCollection('dorps')
+db.createCollection('forums')

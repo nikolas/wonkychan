@@ -104,7 +104,9 @@ class Chan {
     img.pic {
         max-width: 80%;
     }
-    img.pic:hover,
+    img.pic:hover {
+        transform: rotate(1deg);
+    }
     img.delete-button:hover {
         transform: rotate(7deg);
     }

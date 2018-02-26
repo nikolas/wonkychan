@@ -103,6 +103,7 @@ class Chan {
 	}
     img.pic {
         max-width: 80%;
+        max-height: 400px;
     }
     img.pic:hover {
         transform: rotate(1deg);

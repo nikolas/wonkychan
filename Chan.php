@@ -178,7 +178,7 @@ $(document).ready(function() {
 			if (move_uploaded_file($this->files['picture']['tmp_name'], $new_filename)) {
 				$this->alert .= '<span class="success">:)</span>';
 				$this->db->dorps
-						->insert(array('picture' => basename($this->files['picture']['name'])));
+						->insertOne(array('picture' => basename($this->files['picture']['name'])));
 			} else {
 				$this->alert .= '<span class="error">woops</span>';
 			}
@@ -186,8 +186,7 @@ $(document).ready(function() {
 			$this->alert .= '>:(';
 		}
 		$cursor = $this->db->dorps
-				->find()->sort(array('$natural' => -1));
-		$cursor->rewind();
+				->find();
 		$s = '<div class="dorps">';
 		foreach ($cursor as $d) {
 			if (array_key_exists('picture', $d)) {
@@ -208,7 +207,6 @@ $('.header').html('<?php echo $this->alert; ?>');
 	private function showForum($link) {
 		$cursor = $this->db->forums
 				->find(array('link' => $link));
-		$cursor->rewind();
 		$s = '';
 		foreach ($cursor as $d) {
 			$s .= "{$d['title']}";
@@ -225,7 +223,6 @@ $('.header').html('<?php echo $this->alert; ?>');
 		$s .= '<tbody>';
 		$cursor = $this->db->forumthreads
 				->find(array('link' => $link));
-		$cursor->rewind();
 		if ($cursor->count() < 1) {
 			$s .= '<tr>no threads yet mate</tr>';
 		}
@@ -252,8 +249,7 @@ $title.text( $title.text() + ' forum' );
 
 	private function showForums() {
 		$cursor = $this->db->forums
-				->find()->sort(array('$natural' => -1));
-		$cursor->rewind();
+				->find();
 		$s = '';
 		foreach ($cursor as $d) {
 			if (array_key_exists('link', $d)
@@ -290,7 +286,7 @@ $title.text( $title.text() + ' forum' );
 					$salt = $this->createSalt();
 					$hashed = crypt($this->post['admin_pass'], $salt);
 					$r = $this->db->admins
-							->insert(array('username' => $this->post['admin_name'], 'password' => $hashed, 'salt' => $salt));
+							->insertOne(array('username' => $this->post['admin_name'], 'password' => $hashed, 'salt' => $salt));
 					if ($r == 1) {
 						print 'user made :)';
 						$_SESSION['admin_name'] = $this->post['admin_name'];
@@ -319,7 +315,7 @@ $title.text( $title.text() + ' forum' );
 					if (array_key_exists('add_forum', $this->post) && !empty($this->post['add_forum'])) {
 						$link = urlencode(preg_replace('/ /', '-', strtolower($this->post['add_forum'])));
 						$r = $this->db->forums
-								->insert(array('link' => $link, 'title' => $this->post['add_forum']));
+								->insertOne(array('link' => $link, 'title' => $this->post['add_forum']));
 						if ($r == 1) {
 							$this->alert .= '<span class="success">forum added :)</span>';
 						}
@@ -327,7 +323,7 @@ $title.text( $title.text() + ' forum' );
 					if (array_key_exists('bg_color', $this->post) && !empty($this->post['bg_color'])) {
 						if ($this->db->chan->find(array('option' => 'bg_color'))->count() < 1) {
 							$r = $this->db->chan
-									->insert(
+									->insertOne(
 											array('option' => 'bg_color',
 												'val' => $this->post['bg_color'])
 										);

@@ -98,6 +98,13 @@ class Chan {
 		color: black;
 		padding: 1em;
 	}
+    img.pic {
+        max-width: 80%;
+    }
+    img.pic:hover,
+    img.delete-button:hover {
+        transform: rotate(7deg);
+    }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>

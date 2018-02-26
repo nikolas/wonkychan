@@ -51,7 +51,7 @@ class Chan {
 			if (array_key_exists('method', $this->post)) {
 				switch ($this->post['method']) {
 					case 'delete_dorp':
-						$this->db->dorps->remove(array('picture' => $this->post['pic_file']));
+						$this->db->dorps->deleteOne(array('picture' => $this->post['pic_file']));
 						$message = array(
 							'result' => 'success',
 							'pic_file' => $this->post['pic_file']
@@ -132,7 +132,6 @@ $(document).ready(function() {
         }
     });
     $('.pic-container').on('click', '.delete-button', function(event) {
-        console.log('c');
         var $this = $(this);
         var container = $this.closest('.pic-container');
 

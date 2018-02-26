@@ -99,66 +99,66 @@ class Chan {
 		padding: 1em;
 	}
 </style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
-	$('.dorps')
-		.delegate('.pic-container', 'hover', function(event) {
-			var $this = $(this);
-			if (event.type == 'mouseenter') {
-				var pic = $this.find('.pic');
-				var pos = pic.offset();
+	$('.pic-container').hover(function(event) {
+        var $this = $(this);
+        if (event.type == 'mouseenter') {
+            var pic = $this.find('.pic');
+            var pos = pic.offset();
 
-				var left = pos.left + 5;
-				var top = pos.top + 5;
-				var img = $('<img />');
+            var left = pos.left + 5;
+            var top = pos.top + 5;
+            var img = $('<img />');
 
-				img.addClass('delete-button');
-				img.css({
+            img.addClass('delete-button');
+            img.css({
 					'position': 'absolute',
-					'cursor': 'pointer',
-					'title': 'Delete',
-					'opacity': 0.7,
-					'top': top,
-					'left': left,
-					'z-index': 1000
-				});
-				img.attr('width', '25px;');
-				img.attr('height', '25px;');
-				img.attr('src', 'delete-all-tweets.jpg');
+               'cursor': 'pointer',
+               'title': 'Delete',
+               'opacity': 0.7,
+               'top': top,
+               'left': left,
+               'z-index': 1000
+               });
+            img.attr('width', '25px;');
+            img.attr('height', '25px;');
+            img.attr('src', 'delete-all-tweets.jpg');
 
-				$this.append(img);
-			} else {
-				$this.find('.delete-button').remove();
-			}
-		})
-		.delegate('.delete-button', 'click', function(event) {
-			var $this = $(this);
-			var container = $this.closest('.pic-container');
+            $this.append(img);
+        } else {
+            $this.find('.delete-button').remove();
+        }
+    });
+    $('.pic-container').on('click', '.delete-button', function(event) {
+        console.log('c');
+        var $this = $(this);
+        var container = $this.closest('.pic-container');
 
-			var pic_file = container.find('img.pic:first').attr('src');
-			pic_file = pic_file.replace('<?php echo $this->site_path; ?>/d/', '');
-			var data = {
-				'ajax': 1,
-				'method': 'delete_dorp',
-				'pic_file': pic_file
-			};
-			$.post('<?php echo $this->site_path; ?>/index.php',
-				data,
-				function(response) {
-				},
-				'json'
-			);
+        var pic_file = container.find('img.pic:first').attr('src');
+        pic_file = pic_file.replace('<?php echo $this->site_path; ?>/d/', '');
+        var data = {
+            'ajax': 1,
+            'method': 'delete_dorp',
+            'pic_file': pic_file
+        };
+        $.post('<?php echo $this->site_path; ?>/index.php',
+               data,
+               function(response) {
+               },
+               'json'
+        );
 
-			container.find('.delete-button').remove();
-			container.find('img.pic').animate({
+        container.find('.delete-button').remove();
+        container.find('img.pic').animate({
 				opacity: 0.25,
-				left: '+=50',
-				height: 'toggle'
-			}, 600, function() {
-				container.remove();
-			});
-		});
+                 left: '+=50',
+                 height: 'toggle'
+                 }, 600, function() {
+                     container.remove();
+                 });
+    });
 });
 </script>
 <?php

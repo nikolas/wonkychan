@@ -93,6 +93,9 @@ class Chan {
 		padding-right: 1em;
 		float: left;
 	}
+    .dorps {
+        text-align: center;
+    }
 	.header {
 		background-color: #9ff904;
 		color: black;
@@ -173,7 +176,15 @@ $(document).ready(function() {
 	private function header() {
 ?>
 <div class="header">
+        <div class="my-alert">
 <?php echo $this->alert; ?>
+        </div>
+
+
+        WOnkyChan
+
+            
+        <a href="https://github.com/nikolas/wonkychan">Source code</a>
 </div>
 <?php
 	}
@@ -204,7 +215,7 @@ $(document).ready(function() {
 		$s .= '</div>';
 ?>
 <script>
-$('.header').html('<?php echo $this->alert; ?>');
+$('.header.my-alert').html('<?php echo $this->alert; ?>');
 </script>
 <?php
 		return $s;
